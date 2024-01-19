@@ -16,9 +16,9 @@ services:
     environment:
       GCP_KEY_PATH: /root/gcs_transfer/gcp_key.json
       GOOGLE_APPLICATION_CREDENTIALS: /root/gcs_transfer/gcp_key.json
-      TABLES: defi.all_label_address,defi.total_marking_address
+      TABLES: defi.all_label_address
       LARK_URL: https://open.larksuite.com/open-apis/bot/v2/hook/4e48a198-8bfa-4d8e-a83a-e2487a24f730
-      UPDATE_INTERVAL_MINUTES: 15
+      UPDATE_INTERVAL_MINUTES: 60
       uploading: 0.0
     command: |
       /usr/bin/python3 /root/gcs_transfer/main.py

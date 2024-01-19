@@ -53,7 +53,7 @@ def download_from_gcs(table_name, bucket):
         for _, row in df_existed.iterrows():
             update_sql_query = f"""ALTER TABLE {table_name}
                     UPDATE type = '{row["type"]}', Name = '{row["Name"]}', Comment = '{row["Comment"]}',  chain = '{row["chain"]}',
-                    id = '{row["id"]}', is_contract = '{int(row["is_contract"])}', update_time = '{row["update_time"]}', last_upload_time = '{row["upload_time"]}',
+                    id = '{row["id"]}', is_contract = {int(row["is_contract"])}, update_time = '{row["update_time"]}', last_update_time = '{row["upload_time"]}',
                     custom_tags = '{row["custom_tags"]}', important = '{str(row["important"])}'
                     WHERE Address = '{row["Address"]}'; """
             try:
@@ -80,8 +80,8 @@ if __name__  == '__main__':
     gcs_transfer_main(upload = False)
     scheduler = BlockingScheduler(timezone = utc)
     if uploading == 1:
-        scheduler.add_job(gcs_transfer_main, 'interval', minutes=update_interval, start_date='2023-07-09 08:00:00', args=(True))
+        scheduler.add_job(gcs_transfer_main, 'interval', minutes=update_interval, start_date='2023-07-09 08:00:00', args=(True, ))
     else:
-        scheduler.add_job(gcs_transfer_main, 'interval', minutes=update_interval, start_date='2023-07-09 08:10:00', args=(False))
+        scheduler.add_job(gcs_transfer_main, 'interval', minutes=update_interval, start_date='2023-07-09 08:10:00', args=(False, ))
     scheduler.start()
 
