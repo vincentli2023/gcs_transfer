@@ -1,7 +1,7 @@
 version: "3"
 
 x-base: &base #
-  image: harbor.timeresearch.biz/onchain/gcs_transfer:0.0.1
+  image: gcs_transfer:0.0.1
   # image: ab
   environment:
     - PYTHONPATH=/root/gcs_transfer/:$PYTHONPATH
@@ -13,7 +13,6 @@ services:
   gcs_transfer:
     container_name: gcs_transfer
     <<: *base
-    pull_policy: always
     environment:
       GCP_KEY_PATH: /root/gcs_transfer/gcp_key.json
       GOOGLE_APPLICATION_CREDENTIALS: /root/gcs_transfer/gcp_key.json
