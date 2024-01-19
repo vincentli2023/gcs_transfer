@@ -1,0 +1,6 @@
+apscheduler==3.10.4
+clickhouse_driver==0.2.6
+pandas==2.1.4
+protobuf==4.25.2
+pytz==2023.3.post1
+Requests==2.31.0
