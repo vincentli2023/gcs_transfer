@@ -50,8 +50,41 @@ class Clickhouse:
                             PRIMARY KEY Address
                             ORDER BY Address
                             SETTINGS index_granularity = 8192;"""
-            
-            self.client.execute(query_sql)
+        elif table_name == 'defi.total_marking_address':
+            query_sql = f"""
+                            CREATE TABLE IF NOT EXISTS defi.total_marking_address
+                            (
+                                `type` String,
+                                `Name` String,
+                                `Address` String,
+                                `Comment` String,
+                                `important` String,
+                                `last_update_time` String
+                            )
+                            ENGINE = MergeTree
+                            PRIMARY KEY Address
+                            ORDER BY Address
+                            SETTINGS index_granularity = 8192;"""
+        elif table_name == 'defi.cheating_wallet':
+            query_sql = f"""CREATE TABLE IF NOT EXISTS {table_name}
+                            (
+                                `address` String,
+                                `Traded_Tokens` String,
+                                `Reason` String,
+                                `cnt` String,
+                                `c_usd` String,
+                                `important` String,
+                                `eth_smart` String,
+                                `txns` String,
+                                `tokens` String,
+                                `interval` String,
+                                `last_update_time` String
+                            )
+                            ENGINE = MergeTree
+                            PRIMARY KEY address
+                            ORDER BY address
+                            SETTINGS index_granularity = 8192;"""
+        self.client.execute(query_sql)
 
 
 def send_lark_message(channel, msg, at_user = False):
