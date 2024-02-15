@@ -65,7 +65,7 @@ def download_from_gcs(table_name, bucket):
             except Exception as e:
                 logger.error(f"Error during updating {table_name}: {e}, query: {update_sql_query}")
                 return []
-    # TODO: ADD MORE TABLES
+    
     elif table_name == 'defi.all_label_address':
         primary_key = list(ch_client.query(f"select Address from {table_name} ")['Address'])
         df_new = df[~df['Address'].isin(primary_key)].copy()
@@ -126,6 +126,8 @@ def download_from_gcs(table_name, bucket):
             except Exception as e:
                 logger.error(f"Error during updating {table_name}: {e}, query: {update_sql_query}")
                 return []
+
+
 def gcs_transfer_main(upload = True):
     """ process list of tables """
     if upload:
