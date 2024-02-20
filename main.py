@@ -1,9 +1,9 @@
 ### 保存 all_label_address
 import subprocess, time, json
 import pandas as pd
+import numpy as np
 from env import tables, bucket, update_interval, uploading
 from util import Clickhouse, logger
-
 from apscheduler.schedulers.blocking import BlockingScheduler
 from pytz import utc
 
@@ -126,7 +126,55 @@ def download_from_gcs(table_name, bucket):
             except Exception as e:
                 logger.error(f"Error during updating {table_name}: {e}, query: {update_sql_query}")
                 return []
-
+    # TODO: ADD MORE TABLES
+    elif table_name == 'defi.cmcv2':
+        cols = ['market_cap','price','total_supply','circulating_supply','max_supply','self_reported_circulating_supply', 
+        'self_reported_market_cap', 'percent_change_24h', 'percent_change_30d', 'volume_24h', 'volume_7d','turnover_24h',
+        'turnover_7d', 'tvl', 'tvl_divide_marketcap', 'circulating_market_cap_processed']
+        df[cols] = df[cols].replace({np.nan: 0, '': 0, np.inf: 0})
+        df.fillna('', inplace = True)
+        # type conversion
+        df['tvl'] = df['tvl'].astype(str)
+        df['tvl_divide_marketcap'] = df['tvl_divide_marketcap'].astype(str)
+        df['turnover_24h'] = df['turnover_24h'].astype(str)
+        df['turnover_7d'] = df['turnover_7d'].astype(str)
+        df['circulating_supply_processed'] = df['circulating_supply_processed'].astype(str)
+        cols_all = ['cmc_rank', 'id', 'name', 'symbol', 'Ethereum', 'Arbitrum', 'tags', 'market_cap', 'price', 'total_supply',\
+            'circulating_supply', 'max_supply', 'self_reported_circulating_supply', 'self_reported_market_cap', \
+            'percent_change_24h', 'percent_change_30d', 'volume_24h', 'volume_7d', 'tvl', 'date_added', 'last_updated', \
+            'turnover_24h', 'turnover_7d', 'tvl_divide_marketcap','circulating_supply_processed', 'circulating_market_cap_processed',\
+            'upload_time']
+        df = df[cols_all].copy()
+        data_list = df.values.tolist()
+        ch_client.truncate_db(table_name)
+        ch_client.listWriteToCh(table_name, data_list)
+    # TODO: ADD MORE TABLES
+    elif table_name == 'defi.cmc_history':
+        cols = ['market_cap','price','total_supply','circulating_supply','max_supply','self_reported_circulating_supply', 
+        'self_reported_market_cap', 'percent_change_24h', 'percent_change_30d', 'volume_24h', 'volume_7d','turnover_24h',
+        'turnover_7d', 'tvl', 'tvl_divide_marketcap', 'circulating_market_cap_processed']
+        df[cols] = df[cols].replace({np.nan: 0, '': 0, np.inf: 0})
+        df.fillna('', inplace = True)
+        query_sql = f"select distinct last_updated from {table_name} "
+        primary_key = list(ch_client.query(query_sql)['last_updated'])
+        df = df[~df['last_updated'].isin(primary_key)].copy()
+        logger.warning(f"need to insert {len(df)} rows")
+        if df.empty:
+            return
+        # type conversion
+        df['tvl'] = df['tvl'].astype(str)
+        df['tvl_divide_marketcap'] = df['tvl_divide_marketcap'].astype(str)
+        df['turnover_24h'] = df['turnover_24h'].astype(str)
+        df['turnover_7d'] = df['turnover_7d'].astype(str)
+        df['circulating_supply_processed'] = df['circulating_supply_processed'].astype(str)
+        cols_all = ['cmc_rank', 'id', 'name', 'symbol', 'Ethereum', 'Arbitrum', 'tags', 'market_cap', 'price', 'total_supply',\
+            'circulating_supply', 'max_supply', 'self_reported_circulating_supply', 'self_reported_market_cap', \
+            'percent_change_24h', 'percent_change_30d', 'volume_24h', 'volume_7d', 'tvl', 'date_added', 'last_updated', \
+            'turnover_24h', 'turnover_7d', 'tvl_divide_marketcap','circulating_supply_processed', 'circulating_market_cap_processed',\
+            'upload_time']
+        df = df[cols_all].copy()
+        data_list = df.values.tolist()
+        ch_client.listWriteToCh(table_name, data_list)
 
 def gcs_transfer_main(upload = True):
     """ process list of tables """
